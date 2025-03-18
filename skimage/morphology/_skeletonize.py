@@ -167,7 +167,18 @@ def _skeletonize_zhang(image):
     """
     if image.ndim != 2:
         raise ValueError("Zhang's skeletonize method requires a 2D array")
-    return _fast_skeletonize(image)
+
+    # pad image w/ zeros to simplify dealing w/ boundaries
+    # NB: careful here to not clobber the original *and* minimize copying
+    image_o = np.pad(image_o, pad_width=1, mode='constant')  # copies
+
+    # do the computation
+    image_o = _fast_skeletonize(image_o)
+
+    # crop it back
+    image_o = crop(image_o, crop_width=1)
+    
+    return image_o
 
 
 # --------- Skeletonization and thinning based on Guo and Hall 1989 ---------
